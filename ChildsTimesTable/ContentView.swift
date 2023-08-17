@@ -7,6 +7,22 @@
 
 import SwiftUI
 
+struct ButtonPadStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+    }
+}
+
+extension View {
+    func buttonPadStyle() -> some View {
+        modifier(ButtonPadStyle())
+    }
+}
+
+
+
 struct ContentView: View {
     
     @State private var chosenTimesTable = 2
@@ -19,6 +35,8 @@ struct ContentView: View {
     @FocusState private var inputValueIsFocused: Bool
     @State private var showingScore = false
     @State private var score = 0
+    
+    @State private var buttonPadAnswers = [""]
     
 
     var body: some View {
@@ -39,31 +57,26 @@ struct ContentView: View {
                         
                         Text("How many questions").font(.headline)
                         Stepper("\(totalQuestions) questions", value: $totalQuestions, in: 5...20, step:(totalQuestions == 10 ? 10 : 5) )
-//                            .onChange(of: numberQuestions) {
-//                            self.createTimesTableQuestions(for: chosenTimesTable, with: numberQuestions)
-//                        }
-                        
-                        
-                        Button("Start Game ") {
-                            // TODO: show a random question and place to answer it
-                            score = 0
-                            generateQuestions(for: chosenTimesTable, with: totalQuestions)
-                            questionNumber = Int.random(in: 0..<totalQuestions)
-
-                            
-                        }
                         
                     }
                     Spacer()
                     
                     VStack {
-                        Text(questions[questionNumber]).font(.headline).animation(.default)
-                        TextField("Enter your answer", value: $answer, format:
-                                .number)
-                        .keyboardType(.decimalPad)
+                        Spacer()
+                        Text(questions[questionNumber]).font(.title).animation(.default)
+                        Spacer()
+                        Text("\(answer)").font(.title)
                         .focused($inputValueIsFocused)
+                        Spacer()
+
 
                     }.multilineTextAlignment(.center)
+                        .frame(width: 250, height: 100)
+                        .background(.ultraThickMaterial)
+                        .overlay(RoundedRectangle(cornerSize: CGSize(width: 25, height: 25))
+                            .stroke(Color.black, lineWidth: 1.0))
+                        .clipShape(RoundedRectangle(cornerSize: CGSize(width: 25, height: 25)))
+                    
                     .onSubmit {
                         checkAnswer()
                     }
@@ -75,18 +88,102 @@ struct ContentView: View {
                                 nextQuestion()
                             })
                     }
+                    
+                    Spacer()
+                    
+                    
+                    VStack (spacing: 20) {
+                        HStack (spacing: 20) {
+                            Button("1") {
+                                
+                                buttonPadAnswers.append("1")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 1
+
+                            }
+                                .buttonPadStyle()
+                            Button("2") {
+                                
+                                buttonPadAnswers.append("2")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 2
+                            }
+                                .buttonPadStyle()
+                            Button("3") {
+                                buttonPadAnswers.append("3")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 3
+                            }
+                                .buttonPadStyle()
+                        }
+                        HStack (spacing: 20 ){
+                            Button("4") {
+                                buttonPadAnswers.append("4")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 4
+
+                            }
+                                .buttonPadStyle()
+                            Button("5") {
+                                buttonPadAnswers.append("5")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 5
+
+                            }
+                                .buttonPadStyle()
+                            Button("6") {
+                                buttonPadAnswers.append("6")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 6
+
+                            }
+                                .buttonPadStyle()
+                        }
+                        HStack (spacing: 20) {
+                            Button("7") {
+                                buttonPadAnswers.append("7")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 7
+
+                            }
+                                .buttonPadStyle()
+                            Button("8") {
+                                buttonPadAnswers.append("8")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 8
+
+                            }
+                                .buttonPadStyle()
+                            Button("9") {
+                                buttonPadAnswers.append("9")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 9
+
+                            }
+                            .buttonPadStyle()
+                        }
+                        HStack (alignment: .center, spacing: 20) {
+                         
+                            Button("0") {
+                                buttonPadAnswers.append("0")
+                                let answerStr = buttonPadAnswers.joined(separator: "")
+                                answer = Int(answerStr) ?? 0
+
+                                print(answer)
+                            }
+                            .buttonPadStyle()
+                            Button("Enter") {
+                                checkAnswer()
+                                buttonPadAnswers = [""]
+                            }
+                            .buttonPadStyle()
+                           
+                        }
+                    }
 
                     
                     
                     
-                    // display answers
-//                    if questionsAnswered.count > 1 {
-//                    ForEach(questionsAnswered, id: \.self) { question in
-//                            HStack {
-//                                Text(question)
-//                            }
-//                        }
-//                    }
 
                     
                     
@@ -103,7 +200,17 @@ struct ContentView: View {
                                 inputValueIsFocused = false
                             }
                         }
+                        ToolbarItemGroup(placement: .navigationBarTrailing) {
+                            Button("New Game") {
+                                startNewGame()
+                            }
+                        }
+                        
                     }
+            }.onAppear {
+                score = 0
+                generateQuestions(for: chosenTimesTable, with: totalQuestions)
+                questionNumber = Int.random(in: 0..<totalQuestions)
             }
  
         }
@@ -144,6 +251,12 @@ struct ContentView: View {
     func nextQuestion() {
         questionNumber = Int.random(in: 0..<totalQuestions)
         answer = 0
+    }
+    
+    func startNewGame() {
+        score = 0
+        generateQuestions(for: chosenTimesTable, with: totalQuestions)
+        questionNumber = Int.random(in: 0..<totalQuestions)
     }
 }
 
