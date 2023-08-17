@@ -29,7 +29,6 @@ struct ContentView: View {
     @State private var totalQuestions = 5
     @State private var questions: Array<String> = [""]
     @State private var answers: Array<Int> = [0]
-//    @State private var questionsAnswered: Array<String> = [""]
     @State private var answer = 0
     @State private var questionNumber = 0
     @FocusState private var inputValueIsFocused: Bool
